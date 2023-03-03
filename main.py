@@ -1,27 +1,27 @@
 import pygame
 import random
 
-# Window dimensions
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
-
-# Grid dimensions
+#initial variables
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 CELL_SIZE = 10
 
-# Colours
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+#screen size
+WINDOW_WIDTH = GRID_WIDTH * CELL_SIZE
+WINDOW_HEIGHT = GRID_HEIGHT * CELL_SIZE
+
+#defining colours here to reduce mess later
+BG_COLOR = (0, 0, 0)
+VEHICLE_COLOR = (255, 0, 0)
+VEHICLE_COLOR_2 = (0, 255, 0)
 
 pygame.init()
 
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Vehicle Simulation")
 
+
+#this needs some work
 class Vehicle:
     def __init__(self, x, y, color, direction = "up"):
         self.x = x
@@ -29,7 +29,7 @@ class Vehicle:
         self.color = color
         self.direction = direction
 
-    def move(self):
+    def move(self): #iske paas direction hai, tere pass nahi
         if self.direction == "up":
             self.y -= 1
         elif self.direction == "down":
@@ -40,35 +40,26 @@ class Vehicle:
             self.x += 1
 
     def draw(self):
-        #print("Drawing vehicle at", self.x, self.y)
-        # Draw vehicle on grid
         rect = pygame.Rect(self.x * CELL_SIZE, self.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
         pygame.draw.rect(window, self.color, rect)
 
-grid = []
-for y in range(GRID_HEIGHT):
-    row = []
-    for x in range(GRID_WIDTH):
-        row.append(None)
-    grid.append(row)
 
+#currently randomly generating vehicles to check if simulation works, will be using proper algorithm later
 def createVehicle():
     if (random.randint(0,1)):
-        x = random.randint(0, GRID_WIDTH - 1)
+        x = random.randint(0, (GRID_WIDTH - 1)//2)*2 #dividing by half then multiplying by 2 to only get even numbers
         y = random.choice([0, GRID_HEIGHT - 1])
 
-        color = RED
-        direction = random.choice(["up", "down"])
+        color = VEHICLE_COLOR
+        direction = random.choice(["up", "down"]) #jada dimag nahi lagaya, marji se kisi bhi direction me chale jayega
     else:
         x = random.choice([0, GRID_WIDTH - 1])
-        y = random.randint(0, GRID_HEIGHT - 1)
+        y = random.randint(0, (GRID_HEIGHT - 1)//2)*2 #dividing by half then multiplying by 2 to only get even numbers
 
-        color = GREEN
-        direction = random.choice(["right","left"])
-    #color = random.choice([RED, GREEN, BLUE])
+        color = VEHICLE_COLOR_2
+        direction = random.choice(["right","left"]) #jada dimag nahi lagaya, marji se kisi bhi direction me chale jayega
     vehicle = Vehicle(x, y, color, direction)
     vehicles.append(vehicle)
-    grid[y][x] = vehicle
 
 
 vehicles = []
@@ -88,20 +79,15 @@ while running:
             running = False
 
     for vehicle in vehicles:
-        grid[vehicle.y][vehicle.x] = None
         vehicle.move()
         if vehicle.x < 0 or vehicle.x >= GRID_WIDTH or vehicle.y < 0 or vehicle.y >= GRID_HEIGHT:
-
+            #removing vehiles if they go off screen, then creating new one to replace it
             vehicles.remove(vehicle)
             createVehicle()
-        else:
-            grid[vehicle.y][vehicle.x] = vehicle
+            
+    window.fill(BG_COLOR)
 
-    window.fill(BLACK)
-
-    for y in range(GRID_HEIGHT):
-        for x in range(GRID_WIDTH):
-            if grid[y][x] is not None:
-                grid[y][x].draw()
+    for vehicle in vehicles:
+        vehicle.draw()
 
     pygame.display.update()
