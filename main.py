@@ -2,9 +2,10 @@ import pygame
 import random
 
 #initial variables
-GRID_WIDTH = 50
-GRID_HEIGHT = 50
+GRID_WIDTH = 49
+GRID_HEIGHT = 49
 CELL_SIZE = 10
+GRID_SPACING = 6
 
 #screen size
 WINDOW_WIDTH = GRID_WIDTH * CELL_SIZE
@@ -47,14 +48,14 @@ class Vehicle:
 #currently randomly generating vehicles to check if simulation works, will be using proper algorithm later
 def createVehicle():
     if (random.randint(0,1)):
-        x = random.randint(0, (GRID_WIDTH - 1)//2)*2 #dividing by half then multiplying by 2 to only get even numbers
+        x = random.randint(0, (GRID_WIDTH - 1)//GRID_SPACING)*GRID_SPACING #dividsion & multiplcation to emulate gaps
         y = random.choice([0, GRID_HEIGHT - 1])
 
         color = VEHICLE_COLOR
         direction = random.choice(["up", "down"]) #jada dimag nahi lagaya, marji se kisi bhi direction me chale jayega
     else:
         x = random.choice([0, GRID_WIDTH - 1])
-        y = random.randint(0, (GRID_HEIGHT - 1)//2)*2 #dividing by half then multiplying by 2 to only get even numbers
+        y = random.randint(0, (GRID_HEIGHT - 1)//GRID_SPACING)*GRID_SPACING #dividsion & multiplcation to emulate gaps
 
         color = VEHICLE_COLOR_2
         direction = random.choice(["right","left"]) #jada dimag nahi lagaya, marji se kisi bhi direction me chale jayega
