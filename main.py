@@ -29,6 +29,7 @@ class Vehicle:
         self.y = y
         self.color = color
         self.direction = direction
+        self.rect = pygame.Rect(self.x * CELL_SIZE, self.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
 
     def move(self): #iske paas direction hai, tere pass nahi
         if self.direction == "up":
@@ -41,8 +42,8 @@ class Vehicle:
             self.x += 1
 
     def draw(self):
-        rect = pygame.Rect(self.x * CELL_SIZE, self.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-        pygame.draw.rect(window, self.color, rect)
+        self.rect = pygame.Rect(self.x * CELL_SIZE, self.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+        pygame.draw.rect(window, self.color, self.rect)
 
 
 #currently randomly generating vehicles to check if simulation works, will be using proper algorithm later
@@ -78,6 +79,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    #collision detection
+    for i in range(len(vehicles)):
+        for j in range(i + 1, len(vehicles)):
+            if vehicles[i].rect.colliderect(vehicles[j].rect):
+                print("Collision between vehicle", i, "and vehicle", j)
 
     for vehicle in vehicles:
         vehicle.move()
