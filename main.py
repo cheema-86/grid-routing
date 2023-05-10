@@ -34,7 +34,7 @@ class Vehicle:
         #should have just stuck to sending everyone up
         self.direction = [0,0]
         self.size = 20
-        self.deathCounter = 90
+        self.deathCounter = 120
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
     def move(self):
@@ -86,14 +86,15 @@ def dijkstra(graph, start, end=None):
 
 def pathFinder(currVehicle):
     currNode = keyList[valueList.index([currVehicle.x,currVehicle.y])]
-    nextNode = dijkstra(graph,currNode,currVehicle.destination)[1]
+    route = dijkstra(graph,currNode,currVehicle.destination)
+    nextNode = route[1]
 
     currCoords = valueList[keyList.index(currNode)]
     nextCoords = valueList[keyList.index(nextNode)]
 
     distance = [currCoords[0]-nextCoords[0],currCoords[1]-nextCoords[1]]
 
-    direction = [1 if num > 0 else -1 if num < 0 else 0 for num in distance]
+    direction = [-1 if num > 0 else 1 if num < 0 else 0 for num in distance]
     return direction
 
 
@@ -146,34 +147,24 @@ while running:
 
     for vehicle in vehicleList:
         #if vehicle at destination
-        if (vehicle.x,vehicle.y) == nodesDict[vehicle.destination]:
+        if [vehicle.x,vehicle.y] == nodesDict[vehicle.destination]:
             vehicle.color = "green"
             vehicle.direction = [0,0] #stop movement
             reachedList.append(vehicle)
             vehicleList.remove(vehicle)
+        else:
 
-        #if vehicle on intersection
-        if [vehicle.x,vehicle.y] in valueList:
-            vehicle.updateRoute(pathFinder(vehicle))
-            '''
-            if vehicle.x == vehicle.destination[0]:
-                vehicle.direction = [0,1 if vehicle.destination[1]-vehicle.y > 0 else -1]
-            if vehicle.y == vehicle.destination[1]:
-                vehicle.direction = [1 if vehicle.destination[0]-vehicle.x > 0 else -1,0]
-            '''
-            '''
-            if vehicle.direction[0]:
-                vehicle.direction = [0,random.choice([-1,1])]
-            else:
-                vehicle.direction = [random.choice([-1,1]),0]
-            '''
+            #if vehicle on intersection
+            if [vehicle.x,vehicle.y] in valueList:
+                vehicle.updateRoute(pathFinder(vehicle))
 
-        #if vehicle out of grid
-        if vehicle.x < coordsList[0] or vehicle.x > coordsList[-1] or vehicle.y < coordsList[0] or vehicle.y > coordsList[-1]:
-            vehicleList.remove(vehicle)
-            createVehicle()
 
-        vehicle.move()
+            #if vehicle out of grid
+            if vehicle.x < coordsList[0] or vehicle.x > coordsList[-1] or vehicle.y < coordsList[0] or vehicle.y > coordsList[-1]:
+                vehicleList.remove(vehicle)
+                createVehicle()
+
+            vehicle.move()
 
     pygame.display.flip()
     clock.tick(60)
