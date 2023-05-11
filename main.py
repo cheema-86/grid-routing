@@ -2,6 +2,7 @@ import pygame
 import random
 import dicts
 import heapq
+import copy
 
 #initializations
 pygame.init()
@@ -79,7 +80,8 @@ def dijkstra(graph, start, end=None):
 #function to use the algorithm to provide vehicles with next node / direction
 def pathFinder(currVehicle):
     currNode = keyList[valueList.index([currVehicle.x,currVehicle.y])]
-    route = dijkstra(graph,currNode,currVehicle.destination)
+    route = dijkstra(currentGraph(graph,currVehicle,vehicleList),currNode,currVehicle.destination)
+
     nextNode = route[1]
 
     currCoords = valueList[keyList.index(currNode)]
@@ -89,6 +91,47 @@ def pathFinder(currVehicle):
 
     direction = [-1 if num > 0 else 1 if num < 0 else 0 for num in distance]
     return direction
+
+def occupiedNodes(vList, cordLis):
+    occupiedNode = []
+    for v in vList:
+        occupiedNode.append(keyList[valueList.index(nearestNode(v,cordLis))])
+    return occupiedNode
+
+def nextNodes(vList, cordLis):
+    tempList = copy.copy(vList)
+    nextNode = []
+    for v in tempList:
+        v.x += v.direction[0]*120
+        v.y += v.direction[1]*120
+        nextNode.append(keyList[valueList.index(nearestNode(v,cordLis))])
+        v.x -= v.direction[0]*120
+        v.y -= v.direction[1]*120
+
+    return nextNode
+
+def nearestNode(veh,cordLis):
+    return [min(cordLis, key=lambda x: abs(x - veh.x)),min(cordLis, key=lambda x: abs(x - veh.y))]
+
+def currentGraph(djGraph, currVehicle, vehicleList):
+    vList = vehicleList
+    vList.remove(currVehicle)
+    dGraph = copy.deepcopy(djGraph)
+
+    occupiedNode = occupiedNodes(vList,coordsList)
+    nextNode = nextNodes(vList,coordsList)
+    occupiedNode.extend(nextNode)
+
+    for node in dGraph:
+        if node in occupiedNode:
+            tempDict = dict(dGraph[node])
+            for i in tempDict:
+                tempDict[i] = 20
+            dGraph[node] = tempDict
+
+    vList.append(currVehicle) 
+
+    return dGraph
 
 #drawing the background
 def drawGrid():
@@ -100,7 +143,11 @@ def drawGrid():
 vehicleList = []
 reachedList = []
 def createVehicle():
+    occupied = occupiedNodes(vehicleList,coordsList)
     start = random.randint(0,63)
+    while start in occupied:
+        start = random.randint(0,63)
+
     x = nodesDict[start][0]
     y = nodesDict[start][1]
 
