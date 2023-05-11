@@ -1,7 +1,5 @@
-#fuck it we ball
 import pygame
 import random
-import math
 import dicts
 import heapq
 
@@ -24,14 +22,7 @@ class Vehicle:
         self.x = posX
         self.y = posY
         self.color = "red"
-        #weird algorithm I came up with to decide start direction
         self.destination = destination
-        #distance = [destination[0]-posX, destination[1]-posY]
-        #minDis = min(distance)
-        #distance[0] -= minDis
-        #distance[1] -= minDis
-        #self.direction = [1 if num > 0 else -1 if num < 0 else 0 for num in distance]
-        #should have just stuck to sending everyone up
         self.direction = [0,0]
         self.size = 20
         self.deathCounter = 120
@@ -48,6 +39,7 @@ class Vehicle:
     def display(self):
         pygame.draw.rect(window, self.color, self.rect)
 
+#overly complicated pathfinding algorithm
 def dijkstra(graph, start, end=None):
     distances = {node: float('inf') for node in graph}
     distances[start] = 0
@@ -84,6 +76,7 @@ def dijkstra(graph, start, end=None):
         break
     return path
 
+#function to use the algorithm to provide vehicles with next node / direction
 def pathFinder(currVehicle):
     currNode = keyList[valueList.index([currVehicle.x,currVehicle.y])]
     route = dijkstra(graph,currNode,currVehicle.destination)
@@ -97,7 +90,7 @@ def pathFinder(currVehicle):
     direction = [-1 if num > 0 else 1 if num < 0 else 0 for num in distance]
     return direction
 
-
+#drawing the background
 def drawGrid():
     for i in coordsList:
         #+10 is added to center the grid, can't be bothered to render the rectangle at the center so moved the grid ui
@@ -167,6 +160,6 @@ while running:
             vehicle.move()
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(60) #fps
 
 pygame.quit()
